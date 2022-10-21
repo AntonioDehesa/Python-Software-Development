@@ -11,40 +11,35 @@ class AutoMPG():
         self.mpg = mpg
 
     def __repr__(self) -> str:
-        return """
-        AutoMPG(\"{}\",\"{}\",{},{})
-        """.format(self.make,self.model,self.year,self.mpg)
+        return "AutoMPG({})".format(str(self))
 
     def __str__(self) -> str:
-        return """
-        Make: {}
-        Model: {}
-        Year: {}
-        MPG: {}
-        """.format(self.make,self.model,self.year,self.mpg)
+        return "make= \"{}\", model= \"{}\", year= {}, mpg= {}".format(self.make,self.model,self.year,self.mpg)
     
     def __eq__(self, other: object):
-        if type(self) and type(other):
+        if isinstance(other, self.__class__):
             if self.make == other.make and self.model == other.model and self.year == other.year and self.mpg == other.mpg:
                 return True
             return False
         return "Not yet implemented"
     
     def __lt__(self, other:object):
-        if type(self) and type(other):
-            if not self == other:
-                if self.make < other.make:
-                    return True
-                if self.model < other.model:
-                    return True
-                if self.year < other.year:
-                    return True
-                if self.mpg < other.mpg:
-                    return True
-                return False
+        if isinstance(other, self.__class__):
+            if self.make < other.make and not self.make > other.make:
+                return True
+            if self.model < other.model and not self.model > other.model:
+                return True
+            if self.year < other.year and not self.year > other.year:
+                return True
+            if self.mpg < other.mpg and not self.mpg > other.mpg:
+                return True
+            return False
+        else:
+            return "Not yet implemented"
 
     def __hash__(self) -> int:
-        return str(hash(self.make)) + str(hash(self.model)) + str(self.year) + str(hash(self.mpg))
+        return hash(self.make) + hash(self.model) + hash(self.year) + hash(self.mpg)
+        
 
 class AutoMPGData():
     data = []
