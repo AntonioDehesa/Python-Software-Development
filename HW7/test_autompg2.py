@@ -1,8 +1,9 @@
 from typing import Iterable
 import unittest
-from autompg import *
+from autompg2 import *
 from os import path
 from collections.abc import Iterable
+from argparse import ArgumentError, ArgumentTypeError
 
 class TestComputeStats(unittest.TestCase):
     # Tests for AutoMPG
@@ -76,5 +77,61 @@ class TestComputeStats(unittest.TestCase):
     
     def test_AutoMPGData_iter(self):
         self.assertTrue(isinstance(iter(AutoMPGData()), Iterable))
+    
+    def test_sort_by_default(self):
+        temp_AutoMPGData = AutoMPGData()
+        temp_AutoMPGData.sort_by_default()
+        for x in range(len(temp_AutoMPGData.data)-1):# Checks that each element is greater than the previous element
+            self.assertGreaterEqual(temp_AutoMPGData.data[x+1], temp_AutoMPGData.data[x])
+
+    def test_sort_by_year(self):
+        temp_AutoMPGData = AutoMPGData()
+        temp_AutoMPGData.sort_by_year()
+        for x in range(len(temp_AutoMPGData.data)-1):# Checks that each element is greater than the previous element, by year
+            self.assertGreaterEqual(temp_AutoMPGData.data[x+1].year, temp_AutoMPGData.data[x].year)
+    
+    def test_sort_by_mpg(self):
+        temp_AutoMPGData = AutoMPGData()
+        temp_AutoMPGData.sort_by_mpg()
+        for x in range(len(temp_AutoMPGData.data)-1):# Checks that each element is greater than the previous element, by year
+            self.assertGreaterEqual(temp_AutoMPGData.data[x+1].mpg, temp_AutoMPGData.data[x].mpg)
+    @unittest.skip # We skip this test for now, as to not make too many requests to the servers
+    def test_download_data(self):
+        from os import remove # We import this method here, as it would be dangerous to allow it to be available anywhere else
+        remove("auto-mpg.clean.txt")
+        del remove
+        self.assertFalse(path.exists("auto-mpg.clean.txt"))
+        temp_autompgData = AutoMPGData()
+        self.assertTrue(path.exists("auto-mpg.clean.txt"))
+            
+    def test_argparse_print(self):
+        args = ["print"]
+        res = parser(args)
+        self.assertTrue(res.print == "print")
+
+    def test_argparse_sort_year(self):
+        args = ["-s", "year", "print"]
+        res = parser(args)
+        self.assertTrue(res.sortOrder == "year")
+
+    def test_argparse_sort_mpg(self):
+        args = ["-s", "mpg", "print"]
+        res = parser(args)
+        self.assertTrue(res.sortOrder == "mpg")
+
+    def test_argparse_sort_default(self):
+        args = ["-s", "default", "print"]
+        res = parser(args)
+        self.assertTrue(res.sortOrder == "default")
+    
+    def test_argparse_sort_incorrect(self):
+        args = ["-s", "gg", "print"]
+        with self.assertRaises((ArgumentError, ArgumentTypeError, SystemExit)):
+            res = parser(args)
+    
+    def test_argparse_empty(self):
+        args = []
+        with self.assertRaises((ArgumentError, ArgumentTypeError, SystemExit)):
+            res = parser(args)
 if __name__ == "__main__":
     unittest.main()

@@ -5,7 +5,7 @@ from collections import namedtuple
 import logging
 import requests
 import argparse
-
+from sys import argv
 
 ######  Logging configuration  #######
 logger = logging.getLogger()
@@ -20,13 +20,6 @@ logger.addHandler(fh)
 sh = logging.StreamHandler()
 sh.setLevel(logging.INFO)
 logger.addHandler(sh)
-
-#######     Argparse configuration     #######
-parser = argparse.ArgumentParser(description="""Arranges the data by car model, manufacturer, year, and mpg. 
-Then, it displays it, either by the order in which they came in first, by year, or by mpg.""")
-
-parser.add_argument("print", metavar="<print>", type=str, help="This command will print the elements of the AutoMPGData collection.")
-parser.add_argument("-s", "--sort order", choices=["year", "mpg", "default"],dest="sortOrder", action="store", help="Decides the sorting order used before printing the elements.")
 
 Record = namedtuple("Record",["MPG","cylinders","displacement","horsepower","weight","acceleration","Year","origin","carName"])
 class AutoMPG():
@@ -58,6 +51,8 @@ class AutoMPG():
         else:
             logging.debug("{} was being compared to a non-AutoMPG object".format(str(self)))
             return "Not yet implemented"
+    def __ge__(self, other:object):# Added this method to make the testing stage easier
+        return self == other or not self < other
 
     def __hash__(self) -> int:
         return hash(self.make) + hash(self.model) + hash(self.year) + hash(self.mpg)
@@ -134,9 +129,17 @@ class AutoMPGData():
         else:
             logging.error("The data was not succesfully retrieved from the url: {}. \nStatus code: {}".format(url,response.status_code))
     
-        
+def parser(args):
+    #######     Argparse configuration     #######
+    parser = argparse.ArgumentParser(description="""Arranges the data by car model, manufacturer, year, and mpg. 
+    Then, it displays it, either by the order in which they came in first, by year, or by mpg.""")
+
+    parser.add_argument("print", metavar="<print>", type=str, help="This command will print the elements of the AutoMPGData collection.")
+    parser.add_argument("-s", "--sort order", choices=["year", "mpg", "default"],dest="sortOrder", action="store", help="Decides the sorting order used before printing the elements.")
+    return parser.parse_args(args)
+
 if __name__ == "__main__":
-    args = parser.parse_args()
+    args = parser(argv[1:])
     a = AutoMPGData()
     if args.sortOrder == "" or args.sortOrder == None:
         a.sort_by_default()
