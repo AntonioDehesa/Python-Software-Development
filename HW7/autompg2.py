@@ -141,11 +141,12 @@ def parser(args):
 if __name__ == "__main__":
     args = parser(argv[1:])
     a = AutoMPGData()
-    if args.sortOrder == "" or args.sortOrder == None:
-        a.sort_by_default()
-    elif args.sortOrder == "year":
-        a.sort_by_year()
-    else:
-        a.sort_by_mpg()
+    match args.sortOrder:
+        case "year":
+            a.sort_by_year()
+        case "mpg":
+            a.sort_by_mpg()
+        case _:
+            a.sort_by_default()
     for x in a:
         print(repr(x))

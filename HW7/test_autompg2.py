@@ -2,7 +2,6 @@ from typing import Iterable
 import unittest
 from autompg2 import *
 from os import path
-from collections.abc import Iterable
 from argparse import ArgumentError, ArgumentTypeError
 
 class TestComputeStats(unittest.TestCase):
