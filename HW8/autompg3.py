@@ -13,7 +13,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
 #file Handler
-fh = logging.FileHandler("autompg2.log")
+fh = logging.FileHandler("autompg3.log")
 fh.setLevel(logging.DEBUG)
 logger.addHandler(fh)
 
@@ -32,7 +32,6 @@ class AutoMPG():
         logging.info("New AutoMPG object created")
 
     def __repr__(self) -> str:
-        #logging.info("Repr of: {}".format(str(self)))
         return "AutoMPG({})".format(str(self))
 
     def __str__(self) -> str:
@@ -111,7 +110,6 @@ class AutoMPGData():
         # repeated car maker in the data, we have to delete one of them, which may cause issues. 
         threshold = 0.75
         line = line.replace('\"',"").split()
-        #line = line.split()
         make = line[8]
         no_missing_model = True
         try:
@@ -137,8 +135,6 @@ class AutoMPGData():
         line = "\t".join(line[0:8]) + "\t" + "\"" + " ".join(line[8:]) + "\""
         return line
     def __clean_data(self):
-        print("Ratio")
-        print(SequenceMatcher(None, "chevy", "chevrolet").ratio())
         clean = open("auto-mpg.clean.txt","w")
         myData = open("auto-mpg.data.txt", "r")
         for line in myData:
@@ -209,7 +205,7 @@ def toPrint(printable, myFile, command):
         case "print":
             if myFile:
                 file = "" + myFile + ".csv"
-                with open(file, "w+") as f:
+                with open(file, "w") as f:
                     headers = ["Make","Model", "Year", "MPG"]
                     writer = csv.DictWriter(f, fieldnames=headers, dialect="excel")
                     writer.writeheader()
@@ -221,28 +217,31 @@ def toPrint(printable, myFile, command):
         case _:
             if myFile:
                 file = "" + myFile + ".csv"
-                with open(file, "w+") as f:
+                with open(file, "w") as f:
                     headers = [(command.split("_")[2]).capitalize(),"MPG"]
                     writer = csv.DictWriter(f, fieldnames=headers, dialect="excel")
                     writer.writeheader()
                     for key, value in printable:
                         writer.writerow({(command.split("_")[2]).capitalize(): key, "MPG": value})
-                        #f.write("{}: {}\n".format(key,value))
             else:
                 for key, value in printable:
                         print("{}: {}\n".format(key,value))
 
-def plot_result(res, x_axis):
+def plot_result(res, x_axis, y_axis):
     plt.xlabel(x_axis)
-    plt.ylabel("MPG")
+    plt.ylabel(y_axis)
     plt.xticks(rotation = 90)
     plt.plot(list(res.keys()), list(res.values()))
     plt.show()
 
+def do_plotable_commands(plotable, x_axis, y_axis, do_plot):
+    if do_plot: 
+        plot_result(plotable, x_axis, y_axis)
+    res = dict(sorted(plotable.items()))
+    toPrint(res.items(), args.outputFile, args.command)
 if __name__ == "__main__":
     args = parser(argv[1:])
     a = AutoMPGData()
-    print(args)
     if args.command == "print":
         match args.sortOrder:
             case "year":
@@ -255,13 +254,7 @@ if __name__ == "__main__":
 
     elif args.command == "mpg_by_year":
         res = a.mpg_by_year()
-        if args.do_plot: 
-            plot_result(res, (args.command.split("_")[2]).capitalize())
-        res = dict(sorted(res.items()))
-        toPrint(res.items(), args.outputFile, args.command)
+        do_plotable_commands(res, (args.command.split("_")[2]).capitalize(), "MPG", args.do_plot)
     elif args.command == "mpg_by_make":
         res = a.mpg_by_make()
-        if args.do_plot: 
-            plot_result(res, (args.command.split("_")[2]).capitalize())
-        res = dict(sorted(res.items()))
-        toPrint(res.items(), args.outputFile, args.command)
+        do_plotable_commands(res, (args.command.split("_")[2]).capitalize(), "MPG", args.do_plot)
