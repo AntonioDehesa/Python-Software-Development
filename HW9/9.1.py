@@ -20,7 +20,7 @@ def uniform_distribution(elements, min, max):
     return [rd.uniform(min,max) for _ in range(0,elements*10)]
 
 def integer_distribution(elements, min, max):
-    return [rd.randrange(min, max) for _ in range(0,elements*10)] # Returns a random integer from min to max, {elements} times. 
+    return [rd.randint(min, max) for _ in range(0,elements*10)] # Returns a random integer from min to max, {elements} times. 
 
 if __name__ == "__main__":
     int_dist = integer_distribution(n, min, max)
